@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tf-inference-fabric
+  namespace: tensor-fabric
+  labels:
+    app: tf-inference-fabric
+    component: inference-fabric
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: tf-inference-fabric
+  template:
+    metadata:
+      labels:
+        app: tf-inference-fabric
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8002"
+    spec:
+      containers:
+        - name: inference-fabric
+          image: tensor-fabric/inference-fabric:1.0.0
+          ports:
+            - containerPort: 8002
+              name: inference
+          env:
+            - name: CONTROL_PLANE_URL
+              value: "http://tf-control-plane:8000"
+            - name: NIM_BASE_URL
+              value: "http://tf-nim:8000"
+            - name: KV_CACHE_CAPACITY_MB
+              value: "16384"
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: "all"
+          resources:
+            requests:
+              cpu: "1000m"
+              memory: "2Gi"
+              nvidia.com/gpu: "1"
+            limits:
+              cpu: "4000m"
+              memory: "8Gi"
+              nvidia.com/gpu: "1"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8002
+            initialDelaySeconds: 20
+            periodSeconds: 10
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tf-inference-fabric
+  namespace: tensor-fabric
+spec:
+  selector:
+    app: tf-inference-fabric
+  ports:
+    - name: inference
+      port: 8002
+      targetPort: 8002
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: tf-inference-fabric-hpa
+  namespace: tensor-fabric
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: tf-inference-fabric
+  minReplicas: 2
+  maxReplicas: 16
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: External
+      external:
+        metric:
+          name: tf_gpu_compute_util_pct
+        target:
+          type: AverageValue
+          averageValue: "80"

@@ -1,0 +1,25 @@
+FROM nvcr.io/nvidia/cuda:12.3.2-runtime-ubuntu22.04
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    python3.11 python3.11-pip python3.11-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN ln -sf /usr/bin/python3.11 /usr/bin/python && \
+    ln -sf /usr/bin/pip3.11 /usr/bin/pip
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY src/ ./src/
+ENV PYTHONPATH=/app/src
+
+EXPOSE 8000 9090
+
+HEALTHCHECK --interval=10s --timeout=5s --retries=3 \
+  CMD curl -f http://localhost:8000/health || exit 1
+
+CMD ["python", "-m", "uvicorn", "tensor_fabric.control_plane.api:app", \
+     "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

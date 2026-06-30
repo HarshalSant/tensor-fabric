@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+.env
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Tensor Fabric storage
+/tmp/tensor-fabric/
+*.tfs
+
+# Docker
+.docker/
+
+# Secrets
+.env
+*.key
+ngc_api_key.txt
+
+# Nvidia / CUDA build artifacts
+*.cubin
+*.fatbin
+*.ptx
+
+# Logs
+*.log
+logs/

@@ -1,0 +1,154 @@
+version: "3.9"
+
+networks:
+  tensor-fabric:
+    driver: bridge
+
+volumes:
+  tensor-storage:
+  prometheus-data:
+
+services:
+
+  # ── Control Plane ───────────────────────────────────────────────────────────
+  control-plane:
+    image: nvcr.io/nvidia/cuda:12.3.2-runtime-ubuntu22.04
+    build:
+      context: .
+      dockerfile: Dockerfile.control-plane
+    container_name: tf-control-plane
+    ports:
+      - "8000:8000"     # REST API
+      - "9090:9090"     # Prometheus metrics
+    volumes:
+      - ./src:/app/src
+      - tensor-storage:/tensor-storage
+    environment:
+      - TENSOR_FABRIC_LOG_LEVEL=INFO
+      - TENSOR_FABRIC_STORAGE_PATH=/tensor-storage
+      - NVIDIA_VISIBLE_DEVICES=all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    command: python -m tensor_fabric.control_plane.api
+    networks:
+      - tensor-fabric
+
+  # ── Storage Fabric Daemon ───────────────────────────────────────────────────
+  storage-fabric:
+    image: nvcr.io/nvidia/cuda:12.3.2-runtime-ubuntu22.04
+    build:
+      context: .
+      dockerfile: Dockerfile.storage-fabric
+    container_name: tf-storage-fabric
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./src:/app/src
+      - tensor-storage:/tensor-storage
+    environment:
+      - TENSOR_FABRIC_STORAGE_PATH=/tensor-storage
+      - CONTROL_PLANE_URL=http://control-plane:8000
+      - NVIDIA_VISIBLE_DEVICES=all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    depends_on:
+      control-plane:
+        condition: service_healthy
+    networks:
+      - tensor-fabric
+
+  # ── Inference Fabric ────────────────────────────────────────────────────────
+  inference-fabric:
+    image: nvcr.io/nvidia/cuda:12.3.2-runtime-ubuntu22.04
+    build:
+      context: .
+      dockerfile: Dockerfile.inference-fabric
+    container_name: tf-inference-fabric
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./src:/app/src
+    environment:
+      - CONTROL_PLANE_URL=http://control-plane:8000
+      - NIM_BASE_URL=http://nim:8000
+      - NVIDIA_VISIBLE_DEVICES=all
+      - KV_CACHE_CAPACITY_MB=16384
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    depends_on:
+      control-plane:
+        condition: service_healthy
+    networks:
+      - tensor-fabric
+
+  # ── Nvidia NIM (model serving) ──────────────────────────────────────────────
+  nim:
+    image: nvcr.io/nim/meta/llama3-8b-instruct:latest
+    container_name: tf-nim
+    ports:
+      - "8080:8000"
+    volumes:
+      - ~/.cache/nim:/opt/nim/.cache
+    environment:
+      - NGC_API_KEY=${NGC_API_KEY}
+      - NIM_SERVED_MODEL_NAME=llama3-8b
+      - NVIDIA_VISIBLE_DEVICES=all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks:
+      - tensor-fabric
+    profiles:
+      - with-nim
+
+  # ── Prometheus ──────────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.50.1
+    container_name: tf-prometheus
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=7d
+    networks:
+      - tensor-fabric
+
+  # ── Grafana ─────────────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:10.3.3
+    container_name: tf-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=tensorFabric
+    networks:
+      - tensor-fabric
+    depends_on:
+      - prometheus

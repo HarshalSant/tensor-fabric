@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tf-control-plane
+  namespace: tensor-fabric
+  labels:
+    app: tf-control-plane
+    component: control-plane
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tf-control-plane
+  template:
+    metadata:
+      labels:
+        app: tf-control-plane
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: control-plane
+          image: tensor-fabric/control-plane:1.0.0
+          ports:
+            - containerPort: 8000
+              name: api
+          env:
+            - name: TENSOR_FABRIC_LOG_LEVEL
+              value: "INFO"
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: "all"
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+              nvidia.com/gpu: "1"
+            limits:
+              cpu: "2000m"
+              memory: "2Gi"
+              nvidia.com/gpu: "1"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          volumeMounts:
+            - name: tensor-storage
+              mountPath: /tensor-storage
+      volumes:
+        - name: tensor-storage
+          persistentVolumeClaim:
+            claimName: tensor-storage-pvc
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tf-control-plane
+  namespace: tensor-fabric
+  labels:
+    app: tf-control-plane
+spec:
+  selector:
+    app: tf-control-plane
+  ports:
+    - name: api
+      port: 8000
+      targetPort: 8000
+      protocol: TCP
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tensor-storage-pvc
+  namespace: tensor-fabric
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: fast-nvme
+  resources:
+    requests:
+      storage: 2Ti
