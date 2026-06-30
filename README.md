@@ -15,10 +15,7 @@
 ╚═╝     ╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝ ╚═════╝
 ```
 
-### **The World's First GPU-Native Unified Infrastructure Stack**
 
-*AWS Nitro eliminated the CPU from cloud I/O in 2017.*
-*Tensor Fabric eliminates the CPU from AI infrastructure — entirely.*
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-blue)](https://www.python.org)
