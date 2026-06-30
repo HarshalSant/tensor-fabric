@@ -25,7 +25,7 @@
 [![CUDA 12.x](https://img.shields.io/badge/CUDA-12.x-76b900?logo=nvidia)](https://developer.nvidia.com/cuda-toolkit)
 [![Nvidia NIM](https://img.shields.io/badge/Nvidia-NIM-76b900?logo=nvidia)](https://developer.nvidia.com/nim)
 [![BlueField DPU](https://img.shields.io/badge/BlueField-DPU-76b900?logo=nvidia)](https://developer.nvidia.com/networking/dpu)
-[![CI](https://github.com/YOUR_USERNAME/tensor-fabric/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/tensor-fabric/actions)
+[![CI](https://github.com/HarshalSant/tensor-fabric/actions/workflows/ci.yml/badge.svg)](https://github.com/HarshalSant/tensor-fabric/actions)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 </div>
@@ -191,7 +191,7 @@ Docker + nvidia-container-toolkit  (for docker-compose)
 ### Install and Run (< 5 minutes)
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/tensor-fabric
+git clone https://github.com/HarshalSant/tensor-fabric
 cd tensor-fabric
 pip install -e ".[all]"
 

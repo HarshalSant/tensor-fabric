@@ -101,11 +101,11 @@ Nitro freed CPUs. **Tensor Fabric frees GPUs.**
 
 ## GitHub
 
-https://github.com/YOUR_USERNAME/tensor-fabric
+https://github.com/HarshalSant/tensor-fabric
 
 Quick start:
 ```bash
-git clone https://github.com/YOUR_USERNAME/tensor-fabric
+git clone https://github.com/HarshalSant/tensor-fabric
 cd tensor-fabric
 pip install -e ".[all]"
 python examples/llm_pipeline.py --model llama3-8b --requests 20 --gpus 8 --stats

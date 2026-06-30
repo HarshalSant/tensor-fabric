@@ -1,5 +1,5 @@
 # SOCIAL MEDIA POSTS — READY TO COPY-PASTE
-# Replace YOUR_GITHUB_URL with your actual repo URL before posting
+# Replace https://github.com/HarshalSant/tensor-fabric with your actual repo URL before posting
 # ─────────────────────────────────────────────────────────────────────
 
 
@@ -51,7 +51,7 @@ Built entirely on shipping Nvidia products: NIM, BlueField DPU, DOCA, Spectrum-X
 
 Open source. Apache 2.0. 42 files. Production-ready.
 
-→ GitHub: YOUR_GITHUB_URL
+→ GitHub: https://github.com/HarshalSant/tensor-fabric
 
 If you're running AI inference at scale and watching GPU utilization sit at 60%, this is why — and this is the fix.
 
@@ -125,7 +125,7 @@ Results:
 • 56/56 tests pass ✅
 • Apache 2.0 🔓
 
-GitHub: YOUR_GITHUB_URL
+GitHub: https://github.com/HarshalSant/tensor-fabric
 
 If you're at @nvidia or running inference at scale — I'd love your feedback on the BlueField DPU integration.
 
@@ -140,7 +140,7 @@ TITLE (pick one — test both):
 Option A: "Tensor Fabric: GPU-native service mesh + filesystem + network under one control plane"
 Option B: "Show HN: Tensor Fabric – the GPU equivalent of AWS Nitro (open source)"
 
-URL: YOUR_GITHUB_URL
+URL: https://github.com/HarshalSant/tensor-fabric
 
 COMMENT (post as first comment after submission):
 Tensor Fabric unifies three layers that exist today as separate, CPU-native products:
@@ -182,7 +182,7 @@ Built something I haven't seen anyone else build: a unified GPU-native infrastru
 
 Apache 2.0. 56/56 tests pass.
 
-GitHub: YOUR_GITHUB_URL
+GitHub: https://github.com/HarshalSant/tensor-fabric
 
 Built on: NIM, BlueField DPU, DOCA, Spectrum-X, GPUDirect Storage, Magnum IO, NVLink, NCCL
 

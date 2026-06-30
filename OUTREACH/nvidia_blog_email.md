@@ -40,7 +40,7 @@ This post would be a showcase for what the full Nvidia infrastructure stack enab
 **The "emergent capability" angle (story hook):**
 When Storage + Network + Inference layers share one control plane, predictive tensor pre-fetching becomes possible. GPU VRAM is pre-loaded with model weights and KV-cache *before the request arrives*. This is impossible when the three layers are separate products — and it's the kind of story that showcases why the complete Nvidia stack matters.
 
-**GitHub:** https://github.com/YOUR_USERNAME/tensor-fabric (Apache 2.0, 42 files, production-ready)
+**GitHub:** https://github.com/HarshalSant/tensor-fabric (Apache 2.0, 42 files, production-ready)
 
 **Proposed post length:** 2,000–3,000 words with architecture diagrams and benchmark tables.
 
